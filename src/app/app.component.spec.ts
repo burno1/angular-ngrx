@@ -1,35 +1,49 @@
-import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { AppComponent } from './app.component';
+import { TestBed } from "@angular/core/testing";
+import { MockStore, provideMockStore } from "@ngrx/store/testing";
+import { selectBooks } from "./state/books.selector";
 
-describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule
+describe('AppComponent reset selectors', () => {
+  let store: MockStore;
+
+  afterEach(() => {
+    store?.resetSelectors();
+  });
+
+  it('should return the mocked value', (done: any) => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideMockStore({
+          selectors: [
+            {
+              selector: selectBooks,
+              value: [
+                {
+                  id: 'mockedId',
+                  volumeInfo: {
+                    title: 'Mocked Title',
+                    authors: ['Mocked Author'],
+                  },
+                },
+              ],
+            },
+          ],
+        }),
       ],
-      declarations: [
-        AppComponent
-      ],
-    }).compileComponents();
-  });
+    });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
+    store = TestBed.inject(MockStore);
 
-  it(`should have as title 'angular-ngrx'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('angular-ngrx');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('angular-ngrx app is running!');
+    store.select(selectBooks).subscribe((mockBooks) => {
+      expect(mockBooks).toEqual([
+        {
+          id: 'mockedId',
+          volumeInfo: {
+            title: 'Mocked Title',
+            authors: ['Mocked Author'],
+          },
+        },
+      ]);
+      done();
+    });
   });
 });

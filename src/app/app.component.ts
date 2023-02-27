@@ -1,34 +1,32 @@
-import {Component} from '@angular/core';
-import {addBook, removeBook, retrievedBookList} from "./book-list/state/actions/book.actions";
-import {selectBookCollection, selectBooks} from "./book-list/state/selectors/books.selector";
-import {GoogleBooksService} from "./book-list/books-service.service";
-import {Store} from "@ngrx/store";
+import { Component } from '@angular/core';
+import { Store } from '@ngrx/store';
+
+
+import { BooksActions, retrieveBooksListAction } from './state/books.actions';
+import { selectBookCollection, selectBooks } from "./state/books.selector";
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
   books$ = this.store.select(selectBooks);
   bookCollection$ = this.store.select(selectBookCollection);
 
   onAdd(bookId: string) {
-    this.store.dispatch(addBook({ bookId }));
+    this.store.dispatch(BooksActions.addBook({ bookId }));
   }
 
   onRemove(bookId: string) {
-    this.store.dispatch(removeBook({ bookId }));
+    this.store.dispatch(BooksActions.removeBook({ bookId }));
   }
 
-  constructor(
-    private booksService: GoogleBooksService,
-    private store: Store
-  ) {}
+  constructor(private store: Store) {
+  }
 
   ngOnInit() {
-    this.booksService
-      .getBooks()
-      .subscribe((books) => this.store.dispatch(retrievedBookList({ books })));
+    this.store.dispatch(
+      retrieveBooksListAction()
+    )
   }
 }
